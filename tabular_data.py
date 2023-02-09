@@ -1,8 +1,10 @@
 import pandas as pd
-def remove_rows_with_missing_ratings(file):
-    df = pd.read_csv(file)
-    #print(df)
 
+
+file="/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/airbnb-property-listings/tabular_data/listing.csv"
+df = pd.read_csv(file)
+def remove_rows_with_missing_ratings(df):
+    
     clean_nulls = df['Cleanliness_rating'].isnull()
     accu_nulls = df['Accuracy_rating'].isnull()
     comm_nulls = df['Communication_rating'].isnull()
@@ -17,7 +19,6 @@ def remove_rows_with_missing_ratings(file):
     df=(df[~value_nulls])
     return df
 
-#df = remove_rows_with_missing_ratings(file="/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/airbnb-property-listings/tabular_data/listing.csv")
-
-#print(df)
+new_df = remove_rows_with_missing_ratings(df)
+print(new_df)
 
