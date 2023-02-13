@@ -1,50 +1,47 @@
+#%%
 import pandas as pd
 import ast
-
-
+#%%
 file="/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/airbnb-property-listings/tabular_data/listing.csv"
-df = pd.read_csv(file)
+raw_df = pd.read_csv(file)
+#%%
 def remove_rows_with_missing_ratings(df):
-    
-    clean_nulls = df['Cleanliness_rating'].isnull()
-    accu_nulls = df['Accuracy_rating'].isnull()
-    comm_nulls = df['Communication_rating'].isnull()
-    location_nulls = df['Location_rating'].isnull()
-    check_nulls = df['Check-in_rating'].isnull()
-    value_nulls = df['Value_rating'].isnull()
-    desc_null = df['Description'].isnull()
-    df =(df[~clean_nulls])
-    df=(df[~accu_nulls])
-    df=(df[~comm_nulls])
-    df=(df[~location_nulls])
-    df=(df[~check_nulls])
-    df=(df[~value_nulls])
-    df = df[~desc_null]
+    df = df.dropna(subset=['Cleanliness_rating','Accuracy_rating','Communication_rating','Location_rating', 'Check-in_rating', 'Value_rating'])
     return df
-
-new_df = remove_rows_with_missing_ratings(df)
-
+#%%
 def combine_description_strings(new_df):
+    new_df = new_df.dropna(subset=['Description'])
+    new_df = new_df.copy()
     new_df['Description'] = new_df['Description'].apply(lambda x: x.replace("'About this space',",''))
     new_df['Description'] = new_df['Description'].apply(lambda x: x.replace("'",'"'))
     new_df['Description'] = new_df['Description'].apply(lambda x: x.replace('"',''))
     new_df['Description'] = new_df['Description'].apply(lambda x: x.replace(",",''))
     new_df['Description'] = new_df['Description'].apply(lambda x: "".join(x))
+    #print(new_df.head())
     return new_df
 
 def set_default_feature_values(new_df):
     new_df[['guests', 'beds', 'bathrooms','bedrooms']] = new_df[['guests', 'beds', 'bathrooms','bedrooms']].fillna(value=1)
-    print((new_df.head()))
+    #print((new_df.head()))
     return new_df
 
-set_default_feature_values(new_df)
+def clean_tabular_data(df):
+    df = remove_rows_with_missing_ratings(df)
+    df = combine_description_strings(df)
+    df = set_default_feature_values(df)
+    return df
+
+
+
+if __name__ == '__main__':
+    file="/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/airbnb-property-listings/tabular_data/listing.csv"
+    raw_df = pd.read_csv(file)
+    new_df = clean_tabular_data(raw_df)
+    csv = pd.DataFrame(new_df).to_csv('/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/airbnb-property-listings/tabular_data/clean_tabular_data.csv')
 
 
 
 
-#new_df['Description'] = new_df['Description'].str.join("\n")
 
 
-
-
-
+# %%
