@@ -68,7 +68,7 @@ def resize_images(source_folder, destination_folder):
                if image.mode!= 'RGB':
                    os.remove(file_path) 
                    count+=1
-                   print(count)
+                   #print(count)
 
 if __name__ == '__main__':
     resize_images(source_folder, destination_folder)
