@@ -40,14 +40,10 @@ def load_airbnb(label):
     cleaned_df = cleaned_df.select_dtypes(include=nums)
     labels = cleaned_df[label]
     features = cleaned_df.drop([label], axis =1)
-    #print (features, labels)
-    return (features, labels)
+    tup = (labels, features)
+
+    return tup
     
-
-#df = combine_description_strings(new_df=remove_rows_with_missing_ratings(raw_df))
-#print((df['Description'][1]))
-
-
 if __name__ == '__main__':
     file="/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/airbnb-property-listings/tabular_data/listing.csv"
     raw_df = pd.read_csv(file)
@@ -55,6 +51,3 @@ if __name__ == '__main__':
     csv = pd.DataFrame(new_df).to_csv('/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/airbnb-property-listings/tabular_data/clean_tabular_data.csv')
 
 
-
-
-# %%
