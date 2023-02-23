@@ -34,14 +34,13 @@ def clean_tabular_data(df):
     df = set_default_feature_values(df)
     return df
 
-def load_airbnb(label):
-    cleaned_df = clean_tabular_data(raw_df)
+def load_airbnb(df,label):
+    cleaned_df = clean_tabular_data(df)
     nums = ['float64', 'int64']
     cleaned_df = cleaned_df.select_dtypes(include=nums)
     labels = cleaned_df[label]
     features = cleaned_df.drop([label], axis =1)
     tup = (labels, features)
-
     return tup
     
 if __name__ == '__main__':
