@@ -1,11 +1,16 @@
+#%%
 import pandas as pd
 from ast import literal_eval
 #file="/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/airbnb-property-listings/tabular_data/listing.csv"
 #raw_df = pd.read_csv(file)
+#%%
 def remove_rows_with_missing_ratings(df):
     df = df.dropna(subset=['Cleanliness_rating','Accuracy_rating','Communication_rating','Location_rating', 'Check-in_rating', 'Value_rating'])
+    if 'Unnamed: 19' in df.columns:
+        df = df.drop('Unnamed: 19', axis=1)
+    #print(df.info())
     return df
-
+#%%
 def literal_return(val):
     try:
         return literal_eval(val)
@@ -36,8 +41,9 @@ def clean_tabular_data(df):
 
 def load_airbnb(df,label):
     cleaned_df = clean_tabular_data(df)
-    nums = ['float64', 'int64']
-    cleaned_df = cleaned_df.select_dtypes(include=nums)
+    #nums = ['float64', 'int64']
+    #cleaned_df = cleaned_df.select_dtypes(include=nums)
+    #return cleaned_df
     labels = cleaned_df[label]
     features = cleaned_df.drop([label], axis =1)
     tup = (labels, features)
@@ -50,3 +56,5 @@ if __name__ == '__main__':
     csv = pd.DataFrame(new_df).to_csv('/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/airbnb-property-listings/tabular_data/clean_tabular_data.csv')
 
 
+
+# %%
