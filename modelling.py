@@ -4,11 +4,15 @@ import numpy as np
 
 from sklearn.preprocessing import scale
 from sklearn.linear_model import SGDRegressor
+from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error, r2_score
 import matplotlib.pyplot as plt
 import seaborn as sns
 import itertools
+import os
+import json
+from joblib import dump
 
 file="/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/airbnb-property-listings/tabular_data/listing.csv"
 raw_df = pd.read_csv(file)
@@ -80,8 +84,29 @@ def custom_tune_regression_model_hyperparameters(model_class, X_train, y_train, 
             validation_RMSE = rmse_val
             best_score = score
             best_params = params
+    metrics = {'R2': best_score , 'RMSE': validation_RMSE}
 
-    print (model, best_params, {'R2':best_score, 'RMSE': validation_RMSE })
-    return model, best_params, {'R2':best_score, 'RMSE': validation_RMSE }
+    print (model, best_params, metrics)
+    return model, best_params, metrics
 
-custom_tune_regression_model_hyperparameters(model_class=SGDRegressor, X_train=X_train, y_train=y_train, X_val=X_val, y_val=y_val, X_test=X_test, y_test=y_test, hyperparameters=hyperparameters)
+#custom_tune_regression_model_hyperparameters(model_class=SGDRegressor, X_train=X_train, y_train=y_train, X_val=X_val, y_val=y_val, X_test=X_test, y_test=y_test, hyperparameters=hyperparameters)
+def tune_regression_model_hyperparameters(model_class, hyperparameters):
+    model = SGDRegressor()
+    grid_search = GridSearchCV(model, hyperparameters)
+    grid_search.fit(X, y)
+    params = model.get_params()
+
+    print(grid_search.best_params_)
+    print(grid_search.best_score_)
+
+#tune_regression_model_hyperparameters(SGDRegressor, hyperparameters)
+
+def save_model(model, metrics, folder='models/regression/linear_regression'):
+    os.makedirs(folder, exist_ok=True)
+    dump(model, os.path.join(folder, 'model.joblib'))
+
+    with open(os.path.join(folder, 'hyperparameters.json'), 'w') as f:
+        json.dump(hyperparameters, f)
+
+    with open(os.path.join(folder, 'metrics.json'), 'w') as f:
+        json.dump(metrics,f)
