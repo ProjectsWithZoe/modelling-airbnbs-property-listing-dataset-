@@ -62,8 +62,7 @@ hyperparameters = {
 def custom_tune_regression_model_hyperparameters(model_class, X_train, y_train, X_val, y_val, X_test, y_test, hyperparameters):
     best_score = 0
     best_params = {}
-    best_r2 = 0
-    best_rmse = 0
+    validation_RMSE = float('inf')
 
     for values in itertools.product(*hyperparameters.values()):
         params = dict(zip(hyperparameters.keys(), values))
@@ -74,9 +73,15 @@ def custom_tune_regression_model_hyperparameters(model_class, X_train, y_train, 
         score = model.score(X_val,y_val)
         y_val_pred = model.predict(X_val)
         
-        r2_val = r2_score(y_val, y_val_pred)
-      
-        print(score)
+        rmse_val = np.sqrt(mean_squared_error(y_val, y_val_pred))
 
+        #print(rmse_val)
+        if rmse_val < validation_RMSE:
+            validation_RMSE = rmse_val
+            best_score = score
+            best_params = params
+
+    print (model, best_params, {'R2':best_score, 'RMSE': validation_RMSE })
+    return model, best_params, {'R2':best_score, 'RMSE': validation_RMSE }
 
 custom_tune_regression_model_hyperparameters(model_class=SGDRegressor, X_train=X_train, y_train=y_train, X_val=X_val, y_val=y_val, X_test=X_test, y_test=y_test, hyperparameters=hyperparameters)
