@@ -92,7 +92,7 @@ def custom_tune_regression_model_hyperparameters(model_class, X_train, y_train, 
     best_score = 0
     best_params = {}
     validation_RMSE = float('inf')
-    hyperparameters = sgd_hyperparameters
+    #hyperparameters = sgd_hyperparameters
 
     for values in itertools.product(*hyperparameters.values()):
         params = dict(zip(hyperparameters.keys(), values))
