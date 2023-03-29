@@ -1,1 +1,1 @@
-{"criterion": "absolute_error", "min_samples_leaf": 2, "splitter": "random"}
+{"criterion": "poisson", "min_samples_leaf": 2, "splitter": "best"}
