@@ -61,7 +61,7 @@ dtr_score = dtr_model.score(X_val, y_val)
 '''Metrics'''
 accuracy_test = accuracy_score(y_test, dtr_pred)
 accuracy_train = accuracy_score(y_train, train_pred)
-#print(accuracy_test, accuracy_train)
+print(accuracy_test, accuracy_train)
 
 def true_positive(labels, targets):
     return np.sum(labels.astype(bool) & targets.astype(bool))
@@ -72,11 +72,32 @@ def false_positive(labels, targets):
 def false_negative(labels, targets):
     return np.sum(labels.astype(bool) & ~targets.astype(bool))
 
-print(true_positive(y_test, dtr_pred))
-print(true_negative(y_test, dtr_pred))
-print(false_positive(y_test, dtr_pred))
-print(false_negative(y_test, dtr_pred))
-#recall_test = recall_score(y_test, dtr_pred)
+TP_test = true_positive(y_test, dtr_pred)
+TN_test = true_negative(y_test, dtr_pred)
+FP_test = false_positive(y_test, dtr_pred)
+FN_test = false_negative(y_test, dtr_pred)
+
+TP_train = true_positive(y_train, train_pred)
+TN_train = true_negative(y_train, train_pred)
+FP_train = false_positive(y_train, train_pred)
+FN_train = false_negative(y_train, train_pred)
+
+#print(TP_test, TN_test, FP_test, FN_test)
+#print(TP_train, TN_train, FP_train, FN_train)
+
+recall_test = recall_score(y_test, dtr_pred, average='macro')
+recall_train = recall_score(y_train, train_pred, average = 'macro')
+print(recall_test, recall_train)
+
+precision_test = precision_score(y_test, dtr_pred, average='macro')
+precision_train = precision_score(y_train, train_pred, average='macro')
+print(precision_test, precision_train)
+
+f1_test = f1_score(y_test, dtr_pred, average='macro')
+f1_train = f1_score(y_train, train_pred, average = 'macro')
+print(f1_test, f1_train)
+#recall_train = recall_score(TP_train/(TP_train+FN_train))
+#print(recall_test, recall_train)
 #recall_train = recall_score(y_train, train_pred)
 #print(recall_test, recall_train)
 #accuracy_train = accuracy_score(y)
