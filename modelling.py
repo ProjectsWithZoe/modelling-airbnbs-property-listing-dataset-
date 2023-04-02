@@ -6,13 +6,15 @@ from sklearn.preprocessing import scale
 from sklearn.linear_model import SGDRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeRegressor
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
+from sklearn.metrics import mean_squared_error, r2_score, accuracy_score
 from sklearn.datasets import make_regression
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn import svm
 import matplotlib.pyplot as plt
-import seaborn as sns
+#import seaborn as sns
 import itertools
 import os
 import json
@@ -86,7 +88,7 @@ rfr_parameters = {
 }
 
 '''MODEL CLASSES'''
-model_classes = [DecisionTreeRegressor, RandomForestRegressor, GradientBoostingRegressor]
+regressor_model_classes = [DecisionTreeRegressor, RandomForestRegressor, GradientBoostingRegressor]
 
 def custom_tune_regression_model_hyperparameters(model_class, X_train, y_train, X_val, y_val, X_test, y_test, hyperparameters):
     best_score = 0
@@ -120,7 +122,7 @@ def custom_tune_regression_model_hyperparameters(model_class, X_train, y_train, 
 def tune_regression_model_hyperparameters(model_class, hyperparameters):
     model = model_class()
     grid_search = GridSearchCV(model, hyperparameters)
-    grid_search.fit(X, y)
+    grid_search.fit(X_train, y_train)
 
     best_params = grid_search.best_params_
     return best_params
@@ -136,10 +138,10 @@ def save_model(model, metrics, hyperparameters, folder):
         json.dump(metrics,f)
 
 
-def evaluate_all_models(model_classes):
+def evaluate_all_models(model_classes, task_folder):
     for model_class in model_classes:
         model = model_class()
-        folder = f'models/regression/{model_class.__name__}'
+        folder = task_folder+model_class.__name__
         if model_class == DecisionTreeRegressor:
             hyperparameters = dtr_parameters
         elif model_class == RandomForestRegressor:
@@ -156,17 +158,20 @@ def evaluate_all_models(model_classes):
         tuned_model.fit(X_train, y_train)
 
         #evaluate model performance
-        score = tuned_model.score(X_val,y_val)
         y_val_pred = tuned_model.predict(X_val)
         rmse_val = np.sqrt(mean_squared_error(y_val, y_val_pred))
-        metrics = {'RMSE': rmse_val, 'Score': score}
-
+        accuracy = accuracy_score(y_val, y_val_pred)
+        score = tuned_model.score(X_val, y_val)
+        metrics = {'RMSE': rmse_val, 'Accuracy': accuracy, 'Score': score }
+        print (model,metrics,folder, tuned_params)
         save_model(model=model, metrics=metrics, hyperparameters=tuned_params, folder=folder)
+    print (model,metrics,folder, tuned_params)
     return model,metrics,folder, tuned_params
-def find_best_model():
+
+def find_best_model(main_folder):
     lowest_rmse = 200
     lowest_rmse_dirs = set()
-    main_folder = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/models/regression'
+    #main_folder = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/models/regression'
     #def find_best_model():
     for dirpath, dirnames, filenames in os.walk(main_folder):
         model= os.listdir(main_folder)
@@ -199,6 +204,8 @@ def find_best_model():
     return model, lowest_rmse, metrics_data, hyperparameters_data
 
 if __name__ == "__main__":
-    evaluate_all_models(model_classes)
-    find_best_model()
+    task_folder = 'models/regression/'
+    evaluate_all_models(model_classes=regressor_model_classes, task_folder=task_folder )
+    main_folder = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/models/regression'
+    find_best_model(main_folder)
             
