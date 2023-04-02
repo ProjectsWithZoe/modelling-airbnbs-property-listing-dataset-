@@ -1,4 +1,4 @@
-# modelling-airbnbs-property-listing-dataset-
+<h1> Modelling using Airbnbs property listing dataset </h1>
 
 A set of images and tabular data was downloaded to be used for this project from Airbnb. 
 Firstly, the images were resized such that the height of every image was the same as the height of the smallest image in that particular folder.
@@ -11,6 +11,7 @@ The code for cleaning this tabular data was stored in a clean_tabular_data metho
 A load_airbnb data method was created using only the numerical tabular data where a particular column is used as a label and the corresponding features (the remaining tabular data excluding the label) are also returned. 
 This returns a tuple containing the label and features once called.
 
+<h2> <b> Modelling </b> </h2>
 A modelling.py file was then created to load a CSV file, clean the data, and then perform linear regression using scikit-learn's SGDRegressor.
 
 We use the clean_tabular_data function to clean the data and load_airbnb function from the tabular_data module to load the data as a tuple, selecting only the columns with numerical data. This data is then stored as X and y variables corresponding to the features and labels and then converted to a Numpy array.
@@ -28,6 +29,7 @@ The evaluate_all_models function takes a list of regression model classes as inp
 
 The find_best_model function searches through the saved models' directories to find the model with the lowest RMSE on the validation set. It loads the metrics data and hyperparameters from the saved files of each model and returns the model name, its metrics data, the corresponding hyperparameters, and the RMSE of the best-performing model. 
 
+<h2> <b> Classification </b> </h2>
 The code defines a function named tune_classification_model_hyperparameters that takes in various inputs such as a classification model class, training, validation and testing data, and a dictionary of hyperparameters and their possible values. The function iterates through all possible combinations of hyperparameters, fits the model with each set of hyperparameters, and computes the validation accuracy, recall, precision, and F1-score for each.
 
 The function returns the model with the best hyperparameters, along with the best hyperparameters themselves and the evaluation metrics. Finally, the function considers the validation accuracy to select the best hyperparameters.
