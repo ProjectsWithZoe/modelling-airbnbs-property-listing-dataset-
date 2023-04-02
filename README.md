@@ -27,3 +27,13 @@ The save_model() function takes in the trained model, metrics obtained during tr
 The evaluate_all_models function takes a list of regression model classes as input, tunes the hyperparameters of each model using tune_regression_model_hyperparameters function, fits the best parameters to the model, evaluates the model performance on the validation set, saves the model, hyperparameters, and metrics data in a new folder for each model. Finally, it returns the last evaluated model, its metrics data, the corresponding folder, and the tuned hyperparameters.
 
 The find_best_model function searches through the saved models' directories to find the model with the lowest RMSE on the validation set. It loads the metrics data and hyperparameters from the saved files of each model and returns the model name, its metrics data, the corresponding hyperparameters, and the RMSE of the best-performing model. 
+
+The code defines a function named tune_classification_model_hyperparameters that takes in various inputs such as a classification model class, training, validation and testing data, and a dictionary of hyperparameters and their possible values. The function iterates through all possible combinations of hyperparameters, fits the model with each set of hyperparameters, and computes the validation accuracy, recall, precision, and F1-score for each.
+
+The function returns the model with the best hyperparameters, along with the best hyperparameters themselves and the evaluation metrics. Finally, the function considers the validation accuracy to select the best hyperparameters.
+Then, the code defines a function named evaluate_all_models that takes in a list of model classes and a task folder. The function iterates through each model class in the list, instantiates the model, and identifies the appropriate hyperparameters for the model class. It then tunes the hyperparameters using the tune_regression_model_hyperparameters function and finds the best hyperparameters for the model.
+
+The function fits the model with the best hyperparameters and evaluates its performance on validation data by computing the root mean squared error, accuracy, and score. The function saves the best model, its hyperparameters, and performance metrics to a folder.
+
+Finally, the function calls another function called find_best_model from the modelling module to find the best model from the saved models and its corresponding hyperparameters and performance metrics.
+
