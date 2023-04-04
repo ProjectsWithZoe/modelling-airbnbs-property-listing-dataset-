@@ -21,7 +21,7 @@ class AirbnbNightlyPriceRegressionDataset(Dataset):
         return len(self.features)
 
 train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
-train_data, val_data = train_test_split(train_data, test_size=0.2, random_state=42)
+val_data, test_data = train_test_split(test_data, test_size=0.5, random_state=42)
 
 train_dataset = AirbnbNightlyPriceRegressionDataset(train_data)
 val_dataset = AirbnbNightlyPriceRegressionDataset(val_data)
@@ -30,4 +30,9 @@ test_dataset = AirbnbNightlyPriceRegressionDataset(test_data)
 train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=16, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=16, shuffle=True)
+
+#a = AirbnbNightlyPriceRegressionDataset(data)
+#index3 = a.__getitem__(1)
+#print (index3)
+
 
