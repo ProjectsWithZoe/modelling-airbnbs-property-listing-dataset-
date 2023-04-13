@@ -4,6 +4,7 @@ import pandas as pd
 import tabular_data
 from torch.utils.data import DataLoader, Dataset
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import scale
 
 import torch
 import torch.nn as nn
@@ -20,9 +21,11 @@ data = data.select_dtypes(include = nums)
 class AirbnbNightlyPriceRegressionDataset(Dataset):
     def __init__(self,data):
         self.label = torch.tensor(data['Price_Night'].values).float().double()
-        self.features = torch.tensor(data.drop('Price_Night', axis=1).values)
+        self.features = (data.drop('Price_Night', axis=1).values)
+        self.features = scale(self.features)
+        #self.features = self.features.values
     def __getitem__(self, index):
-        return self.features[index], self.label[index]
+        return self.features[index], self.label[index].unsqueeze(0) 
     def __len__(self):
         return len(self.features)
 
