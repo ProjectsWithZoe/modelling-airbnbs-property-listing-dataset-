@@ -1,7 +1,9 @@
 import torch
 import numpy as np
 import pandas as pd
+import yaml
 import tabular_data
+
 from torch.utils.data import DataLoader, Dataset
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import scale
@@ -52,12 +54,23 @@ test_loader = DataLoader(test_dataset, batch_size=16, shuffle=True)
 #features, labels = next(iter(train_loader))
 #print(features.shape)
 
+def get_nn_config(file):
+    with open (file, 'r') as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+        #print(data)
+        return data
+config_path = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/nn_config.yaml'
+
 class LinearRegression(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size):
+    def __init__(self, input_size, hidden_size, output_size, config):
         super(LinearRegression, self).__init__()
         self.fc1 = nn.Linear(input_size, hidden_size, dtype=torch.float64)
         self.fc2 = nn.Linear(hidden_size, output_size, dtype=torch.float64)
         self.relu = nn.ReLU()
+        self.optimiser = config['optimiser']
+        self.learning_rate = config['learning_rate']
+        self.hidden_layer_width = config['hidden_layer_width']
+        self.model_depth = config['model_depth']
 
     def forward(self, x):
         x = self.fc1(x)
@@ -68,7 +81,7 @@ input_size = 9
 hidden_size = 3
 output_size = 1
 
-model = LinearRegression(input_size, hidden_size, output_size)
+model = LinearRegression(input_size, hidden_size, output_size, config=get_nn_config(config_path))
 
 def train(model, train_loader, val_loader, num_epochs=10):
     optimiser = torch.optim.SGD(model.parameters(), lr=0.001)
@@ -107,5 +120,5 @@ def train(model, train_loader, val_loader, num_epochs=10):
         #writer.add_scalar('avg val loss', val_loss, epoch)
 
 
-
 train(model, train_loader, val_loader)
+#get_nn_config(file='/nn_config.yaml')
