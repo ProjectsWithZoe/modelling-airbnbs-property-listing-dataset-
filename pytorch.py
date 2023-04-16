@@ -84,7 +84,10 @@ output_size = 1
 model = LinearRegression(input_size, hidden_size, output_size, config=get_nn_config(config_path))
 
 def train(model, train_loader, val_loader, num_epochs=10):
-    optimiser = torch.optim.SGD(model.parameters(), lr=0.001)
+    if model.optimiser == 'SGD':
+        optimiser = torch.optim.SGD(model.parameters(), lr=model.learning_rate)
+    else:
+        raise ValueError ('Optimiser not supported')
     writer = SummaryWriter()
 
     #batch_idx = 0
@@ -121,4 +124,8 @@ def train(model, train_loader, val_loader, num_epochs=10):
 
 
 train(model, train_loader, val_loader)
+sd = model.state_dict()
+torch.save(model.state_dict(), 'model.pt')
+
+
 #get_nn_config(file='/nn_config.yaml')
