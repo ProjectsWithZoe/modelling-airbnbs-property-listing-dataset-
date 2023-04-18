@@ -1,6 +1,8 @@
 import tabular_data
 import pandas as pd
 import numpy as np
+import torch
+import torch.nn as nn
 
 from sklearn.preprocessing import scale
 from sklearn.linear_model import SGDRegressor
@@ -129,14 +131,16 @@ def tune_regression_model_hyperparameters(model_class, hyperparameters):
 
 def save_model(model, metrics, hyperparameters, folder):
     os.makedirs(folder, exist_ok=True)
-    dump(model, os.path.join(folder, 'model.joblib'))
+    if isinstance(model, nn.Module):
+        torch.save(model.state_dict(), os.path.join(folder, 'model.pt'))
+    else:
+        dump(model, os.path.join(folder, 'model.joblib'))
     
     with open(os.path.join(folder, 'hyperparameters.json'), 'w') as f:
         json.dump(hyperparameters, f)
 
     with open(os.path.join(folder, 'metrics.json'), 'w') as f:
         json.dump(metrics,f)
-
 
 def evaluate_all_models(model_classes, task_folder):
     for model_class in model_classes:
