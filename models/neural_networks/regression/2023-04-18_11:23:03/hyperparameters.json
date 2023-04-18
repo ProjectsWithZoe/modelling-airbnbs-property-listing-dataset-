@@ -1,1 +1,0 @@
-{"input_size": 9, "hidden_size": 3, "output_size": 1, "optimiser": "SGD", "learning_rate": 0.001, "hidden_layer_width": 3, "model_depth": 2}

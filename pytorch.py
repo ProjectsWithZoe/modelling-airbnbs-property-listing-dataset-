@@ -113,7 +113,7 @@ def train(model, train_loader, val_loader, num_epochs=10):
 
     timestamp = time.strftime('%Y-%m-%d_%H:%M:%S')
     save_path = os.path.join('models', 'neural_networks', 'regression', timestamp)
-
+    #training
     for epoch in range(num_epochs):
         train_loss = 0.0
         start_time = time.time()
@@ -132,7 +132,9 @@ def train(model, train_loader, val_loader, num_epochs=10):
         train_loss /= len(train_loader)
         
         writer.add_scalar('avg train loss', train_loss, epoch)
+        training_duration = time.time() - start_time
 
+        #validation
         val_loss = 0.0
         with torch.no_grad():
             for j, val_batch in enumerate(val_loader):
@@ -143,15 +145,12 @@ def train(model, train_loader, val_loader, num_epochs=10):
             val_loss /=len(val_loader)
         writer.add_scalar('val loss', val_loss, epoch)
 
-        training_duration = time.time() - start_time
-        writer.add_scalar('training duration', training_duration, epoch)
-
         # Calculate RMSE loss and R-squared score for training set
-        #train_rmse_loss = mean_squared_error(label, predictions, squared=False)
+        train_rmse_loss = mean_squared_error(label.detach().numpy(), train_predictions.detach().numpy())
         train_r2_score = r2_score(label.detach().numpy(), train_predictions.detach().numpy())
 
         # Calculate RMSE loss and R-squared score for validation set
-        #val_rmse_loss = mean_squared_error(val_label, val_predictions, squared=False)
+        val_rmse_loss = mean_squared_error(val_label.detach().numpy(), val_predictions.detach().numpy())
         val_r2_score = r2_score(val_label.detach().numpy(), val_predictions.detach().numpy())
 
         # Calculate inference latency
@@ -175,7 +174,7 @@ def train(model, train_loader, val_loader, num_epochs=10):
             'hidden_layer_width': model.hidden_layer_width,
             'model_depth': model.model_depth
         }
-        metrics = {#'RMSE_loss_train': train_loss, 'RMSE_loss_val': val_rmse_loss,
+        metrics = {'RMSE_loss_train': train_rmse_loss, 'RMSE_loss_val': val_rmse_loss,
                'R_squared_train': train_r2_score, 'R_squared_val': val_r2_score,
                'training_duration': training_duration, 'inference_latency': inference_latency}
     
@@ -186,8 +185,6 @@ def train(model, train_loader, val_loader, num_epochs=10):
 
     #Save the model, hyperparameters, and metrics
     save_model(model,hyperparameters, metrics, save_path)
-    print (f'Train RMSE: {train_loss}, train_r2: {train_r2_score}')
-    print (f'Val RMSE: {val_loss}, val_r2: {val_r2_score}')
 
 train(model, train_loader, val_loader)
 
