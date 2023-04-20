@@ -7,6 +7,9 @@ import json, os
 from joblib import dump
 import time
 from datetime import datetime
+import json
+import os
+import time
 
 from torch.utils.data import DataLoader, Dataset
 from sklearn.model_selection import train_test_split
@@ -61,22 +64,44 @@ test_loader = DataLoader(test_dataset, batch_size=16, shuffle=True)
 
 def get_nn_config(file):
     with open (file, 'r') as f:
-        data = yaml.load(f, Loader=yaml.FullLoader)
-        #print(data)
-        return data
+        config = yaml.load(f, Loader=yaml.FullLoader)
+        #print(config)
+        return config
 config_path = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/nn_config.yaml'
+
+config_params = {
+    'hidden_size': [3, 10, 16, 32, 64],
+    'learning_rate':[0.0001, 0.001, 0.01, 0.1]
+}
+
+def generate_nn_configs(config_params):
+    # Generate all possible combinations of configuration parameters
+    from itertools import product
+    param_values = list(config_params.values())
+    param_combinations = list(product(*param_values))
+    
+    # Create a config dictionary for each combination of parameters
+    configs = []
+    for params in param_combinations:
+        config = {}
+        for i, key in enumerate(config_params.keys()):
+            config[key] = params[i]
+        configs.append(config)
+        
+    return configs
 
 
 class LinearRegression(nn.Module):
-    def __init__(self, input_size, hidden_size, output_size, config):
+    def __init__(self, input_size, output_size, config):
         super(LinearRegression, self).__init__()
-        self.fc1 = nn.Linear(input_size, hidden_size, dtype=torch.float64)
-        self.fc2 = nn.Linear(hidden_size, output_size, dtype=torch.float64)
+        self.fc1 = nn.Linear(input_size, config['hidden_size'], dtype=torch.float64)
+        self.fc2 = nn.Linear(config['hidden_size'], output_size, dtype=torch.float64)
         self.relu = nn.ReLU()
-        self.optimiser = config['optimiser']
+        #self.optimiser = config['optimiser']
         self.learning_rate = config['learning_rate']
-        self.hidden_layer_width = config['hidden_layer_width']
-        self.model_depth = config['model_depth']
+        #self.hidden_layer_width = config['hidden_layer_width']
+        #self.model_depth = config['model_depth']
+        #self.hidden_size = 3
 
     def forward(self, x):
         x = x.to(self.fc1.weight.dtype)
@@ -84,15 +109,10 @@ class LinearRegression(nn.Module):
         x = self.relu(x)
         x = self.fc2(x)
         return x
-input_size = 9
-hidden_size = 3
-output_size = 1
 
-model = LinearRegression(input_size, hidden_size, output_size, config=get_nn_config(config_path))
+#model = LinearRegression(input_size, hidden_size, output_size, config=get_nn_config(config_path))
+model = LinearRegression(9, 1, config=get_nn_config(config_path))
 
-import json
-import os
-import time
 
 def save_model(model, hyperparameters, metrics, save_path):
     os.makedirs(save_path, exist_ok=True)
@@ -103,6 +123,7 @@ def save_model(model, hyperparameters, metrics, save_path):
             json.dump(hyperparameters, f)
         with open(os.path.join(save_path, 'metrics.json'), 'w') as f:
             json.dump(metrics, f)
+
 
 def train(model, train_loader, val_loader, num_epochs=10):
     if model.optimiser == 'SGD':
@@ -171,8 +192,8 @@ def train(model, train_loader, val_loader, num_epochs=10):
             'output_size': model.output_size,
             'optimiser': model.optimiser,
             'learning_rate': model.learning_rate,
-            'hidden_layer_width': model.hidden_layer_width,
-            'model_depth': model.model_depth
+            #'hidden_layer_width': model.hidden_layer_width,
+            #'model_depth': model.model_depth
         }
         metrics = {'RMSE_loss_train': train_rmse_loss, 'RMSE_loss_val': val_rmse_loss,
                'R_squared_train': train_r2_score, 'R_squared_val': val_r2_score,
@@ -184,9 +205,51 @@ def train(model, train_loader, val_loader, num_epochs=10):
     #os.makedirs(folder_name)
 
     #Save the model, hyperparameters, and metrics
-    save_model(model,hyperparameters, metrics, save_path)
+    #save_model(model,hyperparameters, metrics, save_path)
+    print(f'Train_RMSE: {train_rmse_loss}, Val RMSE: {val_rmse_loss}')
+    print(f'Train_v2: {train_r2_score}, Val_v2: {val_r2_score}')
 
-train(model, train_loader, val_loader)
+def find_best_nn(train_loader, val_loader, config_params):
+    # Generate configurations
+    configs = generate_nn_configs(config_params)
+    
+    # Train models with each configuration
+    best_model = None
+    best_metrics = None
+    best_hyperparams = None
+    best_val_loss = float('inf')
+    
+    for i, config in enumerate(configs):
+        # Create model
+        model = LinearRegression(input_size=9, output_size=1, config=config)
+        
+        # Create optimizer
+        optimiser = torch.optim.SGD(model.parameters(), lr=config['learning_rate'])
+        
+        # Train model
+        metrics = train(model, train_loader, val_loader)
+        
+        # Save hyperparameters and metrics
+        #hyperparams_file = os.path.join(save_dir, f'hyperparameters_{i}.json')
+        #with open(hyperparams_file, 'w') as f:
+        #    json.dump(config, f)
+            
+        #metrics_file = os.path.join(save_dir, f'metrics_{i}.json')
+        #with open(metrics_file, 'w') as f:
+            #json.dump(metrics, f)
+            
+        # Save model if it performs better on the validation set
+        val_loss = metrics['val_loss']
+        if val_loss < best_val_loss:
+            best_model = model
+            best_metrics = metrics
+            best_hyperparams = config
+            best_val_loss = val_loss
+            #torch.save(model.state_dict(), os.path.join(save_dir, 'best_model.pth'))
+            
+    return best_model, best_metrics, best_hyperparams
+
+find_best_nn(train_loader, val_loader, config_params=config_params)
 
 
 #get_nn_config(file='/nn_config.yaml')
