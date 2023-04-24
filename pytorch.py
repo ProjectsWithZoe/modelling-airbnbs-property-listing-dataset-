@@ -21,7 +21,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-#from torch.utils.tensorboard import SummaryWriter
+from torch.utils.tensorboard import SummaryWriter
 
 file="/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/airbnb-property-listings/tabular_data/listing.csv"
 raw_df = pd.read_csv(file)
@@ -53,15 +53,6 @@ test_dataset = AirbnbNightlyPriceRegressionDataset(test_data)
 train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=16, shuffle=True)
 test_loader = DataLoader(test_dataset, batch_size=16, shuffle=True)
-
-'''Testing the working of the model'''
-#a = AirbnbNightlyPriceRegressionDataset(data)
-#features, label = a[3]
-#print(label)
-#print(features.shape)
-#print(label.shape)
-#features, labels = next(iter(train_loader))
-#print(features.shape)
 
 def get_nn_config(file):
     with open (file, 'r') as f:
@@ -123,7 +114,7 @@ def save_model(model, hyperparameters, metrics, save_path):
 
 def train(model, train_loader, val_loader,optimiser, num_epochs=10):
     #optimiser = torch.optim.SGD(model.parameters(), lr=model.learning_rate)
-    #writer = SummaryWriter()
+    writer = SummaryWriter()
 
     timestamp = time.strftime('%Y-%m-%d_%H:%M:%S')
     save_path = os.path.join('models', 'neural_networks', 'regression', timestamp)
@@ -142,22 +133,25 @@ def train(model, train_loader, val_loader,optimiser, num_epochs=10):
             optimiser.step()
             optimiser.zero_grad()
 
-            #writer.add_scalar('loss', loss.item(), epoch*len(train_loader)+i)
+            writer.add_scalar('loss', loss.item(), epoch*len(train_loader)+i)
         train_loss /= len(train_loader)
         
-        #writer.add_scalar('avg train loss', train_loss, epoch)
+        writer.add_scalar('avg train loss', train_loss, epoch)
         training_duration = time.time() - start_time
+        writer.add_scalar('training duration', training_duration, epoch)
 
         #validation
-        val_loss = 0.0
+        avg_val_loss = 0.0
         with torch.no_grad():
             for j, val_batch in enumerate(val_loader):
                 val_features, val_label = val_batch
                 val_predictions = model(val_features)
-                val_loss += F.mse_loss(val_predictions, val_label).item()
+                val_loss = F.mse_loss(val_predictions, val_label)
+                avg_val_loss += val_loss.item()
                 #print (val_loss)
-            val_loss /=len(val_loader)
-        #writer.add_scalar('val loss', val_loss, epoch)
+                writer.add_scalar('val loss', val_loss.item(), epoch*len(val_loader)+i)
+            avg_val_loss /=len(val_loader)
+            writer.add_scalar('avg val loss', val_loss, epoch)
 
         # Calculate RMSE loss and R-squared score for training set
         train_rmse_loss = mean_squared_error(label.detach().numpy(), train_predictions.detach().numpy())
@@ -176,7 +170,7 @@ def train(model, train_loader, val_loader,optimiser, num_epochs=10):
         start_time = time.time()
         model(features)
         inference_latency = (time.time() - start_time) / num_samples
-       # writer.add_scalar('inference latency', inference_latency, epoch)
+        writer.add_scalar('inference latency', inference_latency, epoch)
 
         # Save the model, hyperparameters, and performance metrics
         hyperparameters = {
