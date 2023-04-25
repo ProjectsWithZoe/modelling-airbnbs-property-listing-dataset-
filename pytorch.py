@@ -28,11 +28,11 @@ raw_df = pd.read_csv(file)
 data= tabular_data.clean_tabular_data(df=raw_df)
 nums = ['float64', 'int64']
 data = data.select_dtypes(include = nums)
-
+label_column = 'Price_Night'
 class AirbnbNightlyPriceRegressionDataset(Dataset):
-    def __init__(self,data):
-        self.label = torch.tensor(data['Price_Night'].values).float().double()
-        self.features = (data.drop('Price_Night', axis=1).values)
+    def __init__(self,data, label_column):
+        self.label = torch.tensor(data[label_column].values).float().double()
+        self.features = torch.tensor(data.drop(label_column, axis=1).values)
         self.features = scale(self.features)
         #self.features = self.features.values
     def __getitem__(self, index):
@@ -40,15 +40,15 @@ class AirbnbNightlyPriceRegressionDataset(Dataset):
     def __len__(self):
         return len(self.features)
 
-#a = AirbnbNightlyPriceRegressionDataset(data)
+#a = AirbnbNightlyPriceRegressionDataset(data, label_column)
 #print(a.features.dtype)
 #print(a.label.dtype)
 train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
 val_data, test_data = train_test_split(test_data, test_size=0.5, random_state=42)
 
-train_dataset = AirbnbNightlyPriceRegressionDataset(train_data)
-val_dataset = AirbnbNightlyPriceRegressionDataset(val_data)
-test_dataset = AirbnbNightlyPriceRegressionDataset(test_data)
+train_dataset = AirbnbNightlyPriceRegressionDataset(train_data, label_column)
+val_dataset = AirbnbNightlyPriceRegressionDataset(val_data, label_column)
+test_dataset = AirbnbNightlyPriceRegressionDataset(test_data, label_column)
 
 train_loader = DataLoader(train_dataset, batch_size=16, shuffle=True)
 val_loader = DataLoader(val_dataset, batch_size=16, shuffle=True)
@@ -198,6 +198,10 @@ def train(model, train_loader, val_loader,optimiser, num_epochs=10):
     #print(f'Train_RMSE: {train_rmse_loss}, Val RMSE: {val_rmse_loss}')
     #print(f'Train_v2: {train_r2_score}, Val_v2: {val_r2_score}')
 
+
+save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/'
+best_save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/best_nn'
+
 def find_best_nn(train_loader, val_loader, config_params):
     # Generate configurations
     configs = generate_nn_configs(config_params)
@@ -222,9 +226,9 @@ def find_best_nn(train_loader, val_loader, config_params):
         #print(metrics)
 
         # Save hyperparameters and metrics
-        save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/'
+        #save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/'
         save_model(model, new_config, metrics, f'{save_dir}model_{i}')
-        best_save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/best_nn'
+        #best_save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/best_nn'
         #hyperparams_file = os.path.join(save_dir, f'hyperparameters_{i}.json')
         #with open(hyperparams_file, 'w') as f:
          #   json.dump(new_config, f)
@@ -245,7 +249,7 @@ def find_best_nn(train_loader, val_loader, config_params):
             
     return best_model, best_metrics, best_hyperparams
 
-find_best_nn(train_loader, val_loader, config_params=config_params)
+#find_best_nn(train_loader, val_loader, config_params=config_params)
 #configs = generate_nn_configs(config_params)
 #for i in range(17):
  #   x = random.choice(configs)
