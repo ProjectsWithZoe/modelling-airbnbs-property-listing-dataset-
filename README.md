@@ -38,3 +38,44 @@ Then, the code defines a function named evaluate_all_models that takes in a list
 The function fits the model with the best hyperparameters and evaluates its performance on validation data by computing the root mean squared error, accuracy, and score. The function saves the best model, its hyperparameters, and performance metrics to a folder.
 
 Finally, the function calls another function called find_best_model from the modelling module to find the best model from the saved models and its corresponding hyperparameters and performance metrics.
+
+<h1> Pytorch.py </h1>
+This code defines a PyTorch dataset for performing regression on Airbnb nightly rental prices.
+
+The dataset is initialized with a pandas dataframe 'data', which contains the features and target variable for the regression problem.
+
+The target variable, 'Price_Night', is extracted from the dataframe and stored in a PyTorch tensor.
+The features are extracted from the dataframe by dropping the target variable column using the .drop() method, and are stored as a numpy array in the self.features attribute. The features are then standardized using the scale() function from the scikit-learn library.
+
+The __getitem__() method returns a tuple containing the features and target variable for a given index.
+The __len__() method returns the number of samples in the dataset.
+
+This code then splits the original data into training, validation, and testing sets using the train_test_split() function. The train_test_split() function is called twice to obtain two sets of splits. First, the original data is split into a training set and a test set, where the test set comprises 20% of the original data. Then, the test set obtained from the previous step is further split into a validation set and a new test set. The validation set also comprises 50% of the test set obtained from the previous step. The random_state argument is set to 42 again for reproducibility.
+
+Three AirbnbNightlyPriceRegressionDataset objects are then created from the three sets of data. Each dataset is created using the class defined earlier, which returns tuples of standardized features and target variables.
+Finally, three DataLoader objects are created from the three datasets. The DataLoader objects are used to efficiently load the data in batches during model training and evaluation. Each DataLoader loads samples from its corresponding dataset and returns batches of 16 in this case with optional shuffling of the samples.
+
+Get_nn_config() - This code defines a function get_nn_config() that reads a YAML file containing a dictionary of configuration parameters for a neural network model. The yaml.load() method is used to parse the YAML file into a Python dictionary, which is then returned by the function. The config_path variable contains the file path to the YAML file. The config_params dictionary defines two hyperparameters, hidden_size and learning_rate, and their corresponding search spaces. The hidden_size hyperparameter specifies the number of hidden units in the neural network, and the learning_rate hyperparameter specifies the learning rate used during optimization. The search spaces for both hyperparameters are specified as lists of possible values.
+
+Generate_nn_configs() - This is a function that generates all possible combinations of configuration parameters, given a dictionary of parameter names and their possible values. It then creates a dictionary of configurations for each combination of parameters. The function first imports the product function from the itertools module. This function returns all possible combinations of the elements in each input iterable. The function then extracts the possible values of each parameter from the input dictionary of config_params and creates a list of all possible combinations of these values using the product function. Next, it creates a configuration dictionary for each combination of parameters. For each combination, the function loops through the keys in the input dictionary of config_params and assigns the corresponding value from the current combination of parameters to each key. The resulting dictionary of configuration is then appended to the configs list.
+Finally, the function returns the list of configuration dictionaries.
+
+Class LinearRegression(nn.Module) - This is a PyTorch nn.Module subclass defining a linear regression model. The class has two main methods: __init__() and forward().In the __init__() method, the model is defined by creating two linear layers (nn.Linear) and a ReLU activation function (nn.ReLU()). The input size of the first linear layer is input_size and the output size is specified by the hidden_size value from the input dictionary config. The second linear layer has an input size equal to the hidden_size and an output size of output_size. The dtype of the linear layers is set to torch.float64. The hidden_size and learning_rate values from the input dictionary config are also saved as attributes of the model for later use.
+In the forward() method, the input tensor x is first cast to the same dtype as the weight tensor of the first linear layer using x.to(self.fc1.weight.dtype). Then, x is passed through the first linear layer (self.fc1), followed by the ReLU activation function (self.relu), and then through the second linear layer (self.fc2). The resulting tensor is returned as the output of the forward() method. 
+
+train() - The train function takes a model, train_loader, val_loader, optimiser, and num_epochs as input. It trains the model for num_epochs epochs using the optimizer on the train_loader, computes the loss on the validation set, and saves the hyperparameters and metrics. The model is saved in the models/neural_networks/regression directory, named according to the current date and time. The function returns a dictionary of performance metrics.
+
+find_best_nn - The find_best_nn function generates a set of configurations and then trains a linear regression model for each configuration using the train function. The hyperparameters and metrics for each trained model are saved in separate files. After training all the models, the function chooses the one with the lowest validation loss and saves its hyperparameters and metrics in a separate directory.
+
+The best parameterized model had a hidden_size of 64 and learning rate of 0.001.
+Its other metrics were :
+  <ul> RMSE training loss: 4656.226372162173 </ul>
+  <ul> RMSE validation loss: 1349.5539369233848 </ul>
+  <ul> R2 score training: -0.9297545561113245 </ul>
+  <ul> R2 score validation: 0.4920548079495457 </ul>
+  <ul> training_duration: 0.05686497688293457</ul>
+  <ul> inference_latency: 8.230209350585937e-07 </ul>
+  
+  This is a visualization of the best neural network.
+
+![nn](https://user-images.githubusercontent.com/118231395/234359311-fd48ef4d-501b-4fbc-9e4a-1ced67e47911.svg)
