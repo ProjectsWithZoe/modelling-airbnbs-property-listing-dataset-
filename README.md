@@ -77,5 +77,4 @@ Its other metrics were :
   <ul> inference_latency: 8.230209350585937e-07 </ul>
   
   This is a visualization of the best neural network.
-
-![nn](https://user-images.githubusercontent.com/118231395/234359311-fd48ef4d-501b-4fbc-9e4a-1ced67e47911.svg)
+![nn (1)](https://user-images.githubusercontent.com/118231395/234360572-3bb15cec-f846-4ea7-b450-00881db7fafd.svg)
