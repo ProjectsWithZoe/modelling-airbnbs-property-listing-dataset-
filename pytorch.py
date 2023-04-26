@@ -32,7 +32,7 @@ label_column = 'Price_Night'
 class AirbnbNightlyPriceRegressionDataset(Dataset):
     def __init__(self,data, label_column):
         self.label = torch.tensor(data[label_column].values).float().double()
-        self.features = torch.tensor(data.drop(label_column, axis=1).values)
+        self.features = (data.drop(label_column, axis=1).values)
         self.features = scale(self.features)
         #self.features = self.features.values
     def __getitem__(self, index):
@@ -111,13 +111,15 @@ def save_model(model, hyperparameters, metrics, save_path):
         with open(os.path.join(save_path, 'metrics.json'), 'w') as f:
             json.dump(metrics, f)
 
+save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/'
+best_save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/best_nn'
 
 def train(model, train_loader, val_loader,optimiser, num_epochs=10):
     #optimiser = torch.optim.SGD(model.parameters(), lr=model.learning_rate)
     writer = SummaryWriter()
 
     timestamp = time.strftime('%Y-%m-%d_%H:%M:%S')
-    save_path = os.path.join('models', 'neural_networks', 'regression', timestamp)
+    #save_path = os.path.join('models', 'neural_networks', 'regression', timestamp)
     #training
     for epoch in range(num_epochs):
         train_loss = 0.0
@@ -193,16 +195,13 @@ def train(model, train_loader, val_loader,optimiser, num_epochs=10):
     os.makedirs(folder_name)
 
     #Save the model, hyperparameters, and metrics
-    save_model(model,hyperparameters, metrics, save_path)
+    save_model(model,hyperparameters, metrics, save_path=save_dir)
     #print(metrics)
     #print(f'Train_RMSE: {train_rmse_loss}, Val RMSE: {val_rmse_loss}')
     #print(f'Train_v2: {train_r2_score}, Val_v2: {val_r2_score}')
 
 
-save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/'
-best_save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/best_nn'
-
-def find_best_nn(train_loader, val_loader, config_params):
+def find_best_nn(train_loader, val_loader, config_params, save_dir):
     # Generate configurations
     configs = generate_nn_configs(config_params)
     
@@ -223,11 +222,12 @@ def find_best_nn(train_loader, val_loader, config_params):
         # Train model
         metrics = train(model, train_loader, val_loader, optimiser)
 
-        #print(metrics)
+        print(metrics)
+        
 
         # Save hyperparameters and metrics
         #save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/'
-        save_model(model, new_config, metrics, f'{save_dir}model_{i}')
+        #save_model(model, new_config, metrics, f'{save_dir}model_{i}')
         #best_save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/best_nn'
         #hyperparams_file = os.path.join(save_dir, f'hyperparameters_{i}.json')
         #with open(hyperparams_file, 'w') as f:
@@ -245,10 +245,11 @@ def find_best_nn(train_loader, val_loader, config_params):
             best_hyperparams = new_config
             best_val_loss = val_loss
             #torch.save(model.state_dict(), os.path.join(best_save_dir, 'best_model.pth'))
-            save_model(best_model, best_hyperparams, best_metrics, best_save_dir)
+            save_model(best_model, best_hyperparams, best_metrics, save_path= best_save_dir)
             
     return best_model, best_metrics, best_hyperparams
 
+#print(save_dir)
 #find_best_nn(train_loader, val_loader, config_params=config_params)
 #configs = generate_nn_configs(config_params)
 #for i in range(17):
