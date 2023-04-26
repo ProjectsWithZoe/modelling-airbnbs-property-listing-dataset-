@@ -114,6 +114,9 @@ def save_model(model, hyperparameters, metrics, save_path):
 save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/'
 best_save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/best_nn'
 
+#configs = get_nn_config(config_path)
+#model = LinearRegression(input_size=9, output_size=1, config=configs)
+
 def train(model, train_loader, val_loader,optimiser, num_epochs=10):
     #optimiser = torch.optim.SGD(model.parameters(), lr=model.learning_rate)
     writer = SummaryWriter()
@@ -137,23 +140,24 @@ def train(model, train_loader, val_loader,optimiser, num_epochs=10):
 
             writer.add_scalar('loss', loss.item(), epoch*len(train_loader)+i)
         train_loss /= len(train_loader)
+        #print(epoch)
         
         writer.add_scalar('avg train loss', train_loss, epoch)
         training_duration = time.time() - start_time
         writer.add_scalar('training duration', training_duration, epoch)
 
         #validation
-        avg_val_loss = 0.0
+        val_loss = 0.0
         with torch.no_grad():
             for j, val_batch in enumerate(val_loader):
                 val_features, val_label = val_batch
                 val_predictions = model(val_features)
-                val_loss = F.mse_loss(val_predictions, val_label)
-                avg_val_loss += val_loss.item()
+                val_loss += F.mse_loss(val_predictions, val_label).item()
                 #print (val_loss)
-                writer.add_scalar('val loss', val_loss.item(), epoch*len(val_loader)+i)
-            avg_val_loss /=len(val_loader)
-            writer.add_scalar('avg val loss', val_loss, epoch)
+            val_loss /=len(val_loader)
+        #print(f'Epoch {epoch+1}/{num_epochs}, Train loss: {train_loss}, Val loss: {val_loss}')
+        writer.add_scalar('val loss', loss.item(), epoch*len(val_loader)+i)
+        #writer.add_scalar('avg val loss', val_loss, epoch)
 
         # Calculate RMSE loss and R-squared score for training set
         train_rmse_loss = mean_squared_error(label.detach().numpy(), train_predictions.detach().numpy())
@@ -194,12 +198,6 @@ def train(model, train_loader, val_loader,optimiser, num_epochs=10):
     folder_name = 'models/neural_networks/regression/' + now.strftime('%Y-%m-%d_%H:%M:%S')
     os.makedirs(folder_name)
 
-    #Save the model, hyperparameters, and metrics
-    save_model(model,hyperparameters, metrics, save_path=save_dir)
-    #print(metrics)
-    #print(f'Train_RMSE: {train_rmse_loss}, Val RMSE: {val_rmse_loss}')
-    #print(f'Train_v2: {train_r2_score}, Val_v2: {val_r2_score}')
-
 
 def find_best_nn(train_loader, val_loader, config_params, save_dir):
     # Generate configurations
@@ -224,7 +222,6 @@ def find_best_nn(train_loader, val_loader, config_params, save_dir):
 
         print(metrics)
         
-
         # Save hyperparameters and metrics
         #save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/'
         #save_model(model, new_config, metrics, f'{save_dir}model_{i}')
@@ -247,7 +244,9 @@ def find_best_nn(train_loader, val_loader, config_params, save_dir):
             #torch.save(model.state_dict(), os.path.join(best_save_dir, 'best_model.pth'))
             save_model(best_model, best_hyperparams, best_metrics, save_path= best_save_dir)
             
-    return best_model, best_metrics, best_hyperparams
+    return metrics, best_model, best_metrics, best_hyperparams
+
+#find_best_nn(train_loader, val_loader, config_params, save_dir)
 
 #print(save_dir)
 #find_best_nn(train_loader, val_loader, config_params=config_params)
