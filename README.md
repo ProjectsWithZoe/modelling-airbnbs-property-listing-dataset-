@@ -78,3 +78,10 @@ Its other metrics were :
   
   This is a visualization of the best neural network.
 ![nn (1)](https://user-images.githubusercontent.com/118231395/234360572-3bb15cec-f846-4ea7-b450-00881db7fafd.svg)
+
+<h1> Model testing </h1> 
+Finally, the train and find_best_nn function were used to train a model where the label column was changed to 'beds' and the model was retrained and the metrics were returned. The best model metrics were :
+{'RMSE_loss_train': 1.9740945318157754, 'RMSE_loss_val': 0.7474831117294297, 'R_squared_train': -1.1057008339368273, 'R_squared_val': -2.363674002782434, 'training_duration': 0.06733918190002441, 'inference_latency': 2.830028533935547e-07}, {'hidden_size': 32, 'learning_rate': 0.001})
+The metrics with the other 16 parameters were :<img width="1146" src="https://user-images.githubusercontent.com/118231395/234649738-73327163-12a8-465d-9a81-0ca60e349a2c.png" align='left'>
+
+
