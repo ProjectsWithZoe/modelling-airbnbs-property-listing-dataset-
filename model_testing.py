@@ -45,4 +45,4 @@ test_loader = DataLoader(test_dataset, batch_size=16, shuffle=True)
 config_params = pytorch.config_params
 save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/bed_model_nn/'
 best_save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/bed_model_nn/best_nn'
-print(pytorch.find_best_nn(train_loader, val_loader, config_params, save_dir))
+pytorch.find_best_nn(train_loader, val_loader, config_params, save_dir, best_save_dir)

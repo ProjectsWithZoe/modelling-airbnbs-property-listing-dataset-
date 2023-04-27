@@ -104,15 +104,12 @@ class LinearRegression(nn.Module):
 def save_model(model, hyperparameters, metrics, save_path):
     os.makedirs(save_path, exist_ok=True)
     if isinstance(model, nn.Module):
-        
         torch.save(model.state_dict(), os.path.join(save_path, 'model.pt'))
         with open(os.path.join(save_path, 'hyperparameters.json'), 'w') as f:
             json.dump(hyperparameters, f)
         with open(os.path.join(save_path, 'metrics.json'), 'w') as f:
             json.dump(metrics, f)
 
-save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/'
-best_save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/best_nn'
 
 #configs = get_nn_config(config_path)
 #model = LinearRegression(input_size=9, output_size=1, config=configs)
@@ -125,6 +122,7 @@ def train(model, train_loader, val_loader,optimiser, num_epochs=10):
     #save_path = os.path.join('models', 'neural_networks', 'regression', timestamp)
     #training
     for epoch in range(num_epochs):
+        #print(epoch, model.learning_rate, model.hidden_size)
         train_loss = 0.0
         start_time = time.time()
         for i, batch in enumerate(train_loader):
@@ -157,7 +155,7 @@ def train(model, train_loader, val_loader,optimiser, num_epochs=10):
             val_loss /=len(val_loader)
         #print(f'Epoch {epoch+1}/{num_epochs}, Train loss: {train_loss}, Val loss: {val_loss}')
         writer.add_scalar('val loss', loss.item(), epoch*len(val_loader)+i)
-        #writer.add_scalar('avg val loss', val_loss, epoch)
+        writer.add_scalar('avg val loss', val_loss, epoch)
 
         # Calculate RMSE loss and R-squared score for training set
         train_rmse_loss = mean_squared_error(label.detach().numpy(), train_predictions.detach().numpy())
@@ -191,7 +189,7 @@ def train(model, train_loader, val_loader,optimiser, num_epochs=10):
                'R_squared_train': train_r2_score, 'R_squared_val': val_r2_score,
                'training_duration': training_duration, 'inference_latency': inference_latency}
         
-        return metrics
+    return metrics
     
     # Create a new folder for the current date and time
     now = datetime.now()
@@ -199,7 +197,7 @@ def train(model, train_loader, val_loader,optimiser, num_epochs=10):
     os.makedirs(folder_name)
 
 
-def find_best_nn(train_loader, val_loader, config_params, save_dir):
+def find_best_nn(train_loader, val_loader, config_params, save_dir, best_save_dir):
     # Generate configurations
     configs = generate_nn_configs(config_params)
     
@@ -220,11 +218,11 @@ def find_best_nn(train_loader, val_loader, config_params, save_dir):
         # Train model
         metrics = train(model, train_loader, val_loader, optimiser)
 
-        print(metrics)
+        #print(metrics)
         
         # Save hyperparameters and metrics
         #save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/'
-        #save_model(model, new_config, metrics, f'{save_dir}model_{i}')
+        save_model(model, new_config, metrics, f'{save_dir}model_{i}')
         #best_save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/best_nn'
         #hyperparams_file = os.path.join(save_dir, f'hyperparameters_{i}.json')
         #with open(hyperparams_file, 'w') as f:
@@ -246,7 +244,9 @@ def find_best_nn(train_loader, val_loader, config_params, save_dir):
             
     return metrics, best_model, best_metrics, best_hyperparams
 
-#find_best_nn(train_loader, val_loader, config_params, save_dir)
+#save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/'
+#best_save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/best_nn'
+#find_best_nn(train_loader, val_loader, config_params, save_dir, best_save_dir)
 
 #print(save_dir)
 #find_best_nn(train_loader, val_loader, config_params=config_params)
