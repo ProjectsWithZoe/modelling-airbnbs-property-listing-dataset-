@@ -80,8 +80,31 @@ Its other metrics were :
 ![nn (1)](https://user-images.githubusercontent.com/118231395/234360572-3bb15cec-f846-4ea7-b450-00881db7fafd.svg)
 
 <h1> Model testing </h1> 
-Finally, the train and find_best_nn function were used to train a model where the label column was changed to 'beds' and the model was retrained and the metrics were returned. The best model metrics were :
-{'RMSE_loss_train': 1.9740945318157754, 'RMSE_loss_val': 0.7474831117294297, 'R_squared_train': -1.1057008339368273, 'R_squared_val': -2.363674002782434, 'training_duration': 0.06733918190002441, 'inference_latency': 2.830028533935547e-07}, {'hidden_size': 32, 'learning_rate': 0.001})
-The metrics with the other 16 parameters were :<img width="1146" src="https://user-images.githubusercontent.com/118231395/234649738-73327163-12a8-465d-9a81-0ca60e349a2c.png" align='left'>
 
+Finally, the train and find_best_nn function were used to train a model where the label column was changed to 'beds' and the model was retrained and the metrics were returned. The best model metrics were :
+{'RMSE_loss_train': 2.7349075652761057, 'RMSE_loss_val': 0.2554608486568637, 'R_squared_train': -2.646543420368141, 'R_squared_val': 0.7126065452610284, 'training_duration': 0.043395042419433594, 'inference_latency': 2.4294853210449217e-07}, {'hidden_size': 32, 'learning_rate': 0.001})
+
+<h1> Tensorflow graphs </h1> 
+
+<h2> label = 'Price_Night' </h2>
+
+These are the metrics where 'Price_Night' was the label being predicted.
+<br> </br>
+<img width="500" alt="Screenshot 2023-04-27 at 14 21 38" src="https://user-images.githubusercontent.com/118231395/234879058-d7e9704f-3642-41d0-9aba-4e55b2a0041f.png">
+<img width="500" alt="Screenshot 2023-04-27 at 14 21 25" src="https://user-images.githubusercontent.com/118231395/234879070-78a99c17-c262-424e-ae0d-aa1aedde8ec3.png">
+<img width="500" alt="Screenshot 2023-04-27 at 14 21 13" src="https://user-images.githubusercontent.com/118231395/234879074-87b130b2-9705-4451-948d-81f0b8557f7f.png">
+<img width="500" alt="Screenshot 2023-04-27 at 14 21 00" src="https://user-images.githubusercontent.com/118231395/234879083-2bcb7d8b-429f-4374-9fd2-289dbf8de1db.png">
+<img width="500" alt="Screenshot 2023-04-27 at 14 20 37" src="https://user-images.githubusercontent.com/118231395/234879084-4a70e865-7d7f-432a-9552-dc486305a29f.png">
+<img width="500" alt="Screenshot 2023-04-27 at 14 20 19" src="https://user-images.githubusercontent.com/118231395/234879086-7ae37ffb-50c3-424a-a49b-41b93268a3b9.png">
+
+<h2> label = 'Beds' </h2>
+
+These are the metrics where 'Beds' was the label being predicted.
+<br> </br>
+<img width="500" alt="Screenshot 2023-04-27 at 14 47 30" src="https://user-images.githubusercontent.com/118231395/234882269-b8357f7b-eb24-4084-9228-7462ed52978c.png">
+<img width="500" alt="Screenshot 2023-04-27 at 14 47 02" src="https://user-images.githubusercontent.com/118231395/234882278-9066eea2-9734-4545-a22b-f18cc0aaad32.png">
+<img width="500" alt="Screenshot 2023-04-27 at 14 46 45" src="https://user-images.githubusercontent.com/118231395/234882284-cfef3cdf-3d49-47df-93e2-76270c6e40b3.png">
+<img width="500" alt="Screenshot 2023-04-27 at 14 46 31" src="https://user-images.githubusercontent.com/118231395/234882288-ff90a3d7-0d03-477e-93f6-fd195132197b.png">
+<img width="500" alt="Screenshot 2023-04-27 at 14 46 20" src="https://user-images.githubusercontent.com/118231395/234882292-836762b2-ca99-4c9d-869c-93f4909426cf.png">
+<img width="500" alt="Screenshot 2023-04-27 at 14 46 04" src="https://user-images.githubusercontent.com/118231395/234882295-abbeb0b3-a070-4e0d-8a8c-62a3efbeb571.png">
 
