@@ -7,18 +7,11 @@ import pandas as pd
 import numpy as np
 
 from sklearn.preprocessing import scale
-#from sklearn.linear_model import SGDRegressor
-from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import mean_squared_error, r2_score, confusion_matrix, ConfusionMatrixDisplay, f1_score, accuracy_score, precision_score, recall_score
-#from sklearn.datasets import make_regression
+from sklearn.metrics import mean_squared_error, f1_score, accuracy_score, precision_score, recall_score
 from sklearn.neighbors import KNeighborsClassifier
-#from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor, 
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-#from sklearn import svm
-import matplotlib.pyplot as plt
-#import seaborn as sns
 import itertools
 import modelling
 
@@ -28,8 +21,6 @@ df = tabular_data.clean_tabular_data(raw_df)
 
 labels, features = tabular_data.load_airbnb(df, 'Category')
 num_features = features.select_dtypes(include = modelling.nums)
-#print(num_features)
-#print(labels)
 le = LabelEncoder()
 le.fit(df['Category'])
 df['Category_encoded'] = le.transform(df['Category'])
@@ -49,19 +40,15 @@ dtr_score = dtr_model.score(X_val, y_val)
 '''Metrics'''
 accuracy_test = accuracy_score(y_test, dtr_pred)
 accuracy_train = accuracy_score(y_train, train_pred)
-#print(accuracy_test, accuracy_train)
 
 recall_test = recall_score(y_test, dtr_pred, average='macro')
 recall_train = recall_score(y_train, train_pred, average = 'macro')
-#print(recall_test, recall_train)
 
 precision_test = precision_score(y_test, dtr_pred, average='macro')
 precision_train = precision_score(y_train, train_pred, average='macro')
-#print(precision_test, precision_train)
 
 f1_test = f1_score(y_test, dtr_pred, average='macro')
 f1_train = f1_score(y_train, train_pred, average = 'macro')
-#print(f1_test, f1_train)
 
 ''' HYPERPARAMETERS'''
 dtc_hyperparameters = {
@@ -85,7 +72,6 @@ rfc_hyperparameters = {
 gbc_hyperparameters = {
     'loss':['log_loss'],
     'learning_rate' : [0.1, 0.5, 0.9],
-    #'n_estimators' : [1,10,100,300,500],
     'criterion': ['friedman_mse', 'squared_error']
     }
 
@@ -143,7 +129,6 @@ def evaluate_all_models(model_classes, task_folder):
         tuned_model.fit(X_train, y_train)
 
         #evaluate model performance
-        #score = tuned_model.score(X_val,y_val)
         y_val_pred = tuned_model.predict(X_val)
         rmse_val = np.sqrt(mean_squared_error(y_val, y_val_pred))
         accuracy = accuracy_score(y_val, y_val_pred)
@@ -154,8 +139,6 @@ def evaluate_all_models(model_classes, task_folder):
     print (model,metrics,folder, tuned_params)
     return model,metrics,folder, tuned_params
 
-#evaluate_all_models(model_classes,task_folder='models/ClassificationsTests/')
-#modelling.evaluate_all_models(model_classes=model_classes, task_folder='models/ClassificationsTests/')
 main_folder = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/models/classification'
 modelling.find_best_model(main_folder)
     

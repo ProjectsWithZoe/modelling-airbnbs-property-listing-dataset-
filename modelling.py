@@ -3,20 +3,13 @@ import pandas as pd
 import numpy as np
 import torch
 import torch.nn as nn
-
 from sklearn.preprocessing import scale
 from sklearn.linear_model import SGDRegressor
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier
-from sklearn.metrics import mean_squared_error, r2_score, accuracy_score
-from sklearn.datasets import make_regression
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.metrics import mean_squared_error, accuracy_score
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
-from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn import svm
-import matplotlib.pyplot as plt
-#import seaborn as sns
 import itertools
 import os
 import json
@@ -27,8 +20,7 @@ raw_df = pd.read_csv(file)
 
 df= tabular_data.clean_tabular_data(df=raw_df)
 tup = tabular_data.load_airbnb(df,label='Price_Night')
-#X = tup[1] #features
-#y = tup[0] #labels
+
 nums = ['float64', 'int64'] 
 X_nums = tup[1].select_dtypes(include = nums)
 
@@ -47,21 +39,7 @@ model = SGDRegressor(tol=1e-3, penalty='l2', random_state=42)
 model.fit(X_train, y_train)
 y_pred = model.predict(X_test)
 mse = mean_squared_error(y_test, y_pred)
-#print('Mean squared error:', mse)
 
-#predictions for training and test sets
-#y_train_pred = model.predict(X_train)
-#y_test_pred = model.predict(X_test)
-
-#print(y_train_pred, y_test_pred)
-
-#rmse_train = np.sqrt(mean_squared_error(y_train, y_train_pred))
-#rmse_test = np.sqrt(mean_squared_error(y_test, y_test_pred))
-
-#r2_train = r2_score(y_train, y_train_pred)
-#r2_test = r2_score(y_test, y_test_pred)
-
-#print(model.get_params())
 '''PARAMETERS'''
 sgd_hyperparameters = {
     'penalty': ['l1', 'l2', 'elasticnet'],
@@ -96,7 +74,6 @@ def custom_tune_regression_model_hyperparameters(model_class, X_train, y_train, 
     best_score = 0
     best_params = {}
     validation_RMSE = float('inf')
-    #hyperparameters = sgd_hyperparameters
 
     for values in itertools.product(*hyperparameters.values()):
         params = dict(zip(hyperparameters.keys(), values))
@@ -109,7 +86,6 @@ def custom_tune_regression_model_hyperparameters(model_class, X_train, y_train, 
         
         rmse_val = np.sqrt(mean_squared_error(y_val, y_val_pred))
 
-        #print(rmse_val)
         if rmse_val < validation_RMSE:
             validation_RMSE = rmse_val
             best_score = score
@@ -119,7 +95,6 @@ def custom_tune_regression_model_hyperparameters(model_class, X_train, y_train, 
     print (model, best_params, metrics)
     return model, best_params, metrics
 
-#custom_tune_regression_model_hyperparameters(model_class=SGDRegressor, X_train=X_train, y_train=y_train, X_val=X_val, y_val=y_val, X_test=X_test, y_test=y_test, hyperparameters=hyperparameters)
 '''Get best params with GridSearchCV'''
 def tune_regression_model_hyperparameters(model_class, hyperparameters):
     model = model_class()
@@ -175,8 +150,6 @@ def evaluate_all_models(model_classes, task_folder):
 def find_best_model(main_folder):
     lowest_rmse = 200
     lowest_rmse_dirs = set()
-    #main_folder = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/models/regression'
-    #def find_best_model():
     for dirpath, dirnames, filenames in os.walk(main_folder):
         model= os.listdir(main_folder)
         for filename in filenames:
@@ -191,8 +164,6 @@ def find_best_model(main_folder):
                         
                     elif mets['RMSE'] == lowest_rmse:
                         lowest_rmse_dirs.add(dirpath)
-    #print(highest_value, highest_dir) 
-    #print(type(main_folder))
     lowest_rmse_dir = ', '.join(lowest_rmse_dir)
     model = os.path.basename(lowest_rmse_dir)
     for items in os.listdir(lowest_rmse_dir):
