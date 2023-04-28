@@ -40,9 +40,6 @@ class AirbnbNightlyPriceRegressionDataset(Dataset):
     def __len__(self):
         return len(self.features)
 
-#a = AirbnbNightlyPriceRegressionDataset(data, label_column)
-#print(a.features.dtype)
-#print(a.label.dtype)
 train_data, test_data = train_test_split(data, test_size=0.2, random_state=42)
 val_data, test_data = train_test_split(test_data, test_size=0.5, random_state=42)
 
@@ -57,7 +54,6 @@ test_loader = DataLoader(test_dataset, batch_size=16, shuffle=True)
 def get_nn_config(file):
     with open (file, 'r') as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
-        #print(config)
         return config
 config_path = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/nn_config.yaml'
 
@@ -67,7 +63,6 @@ config_params = {
 }
 
 def generate_nn_configs(config_params):
-    # Generate all possible combinations of configuration parameters
     from itertools import product
     param_values = list(config_params.values())
     param_combinations = list(product(*param_values))
@@ -82,15 +77,12 @@ def generate_nn_configs(config_params):
         
     return configs
 
-
 class LinearRegression(nn.Module):
     def __init__(self, input_size, output_size, config):
         super(LinearRegression, self).__init__()
         self.fc1 = nn.Linear(input_size, config['hidden_size'], dtype=torch.float64)
         self.fc2 = nn.Linear(config['hidden_size'], output_size, dtype=torch.float64)
         self.relu = nn.ReLU()
-        #self.input_size = 9
-        #self.output_size = 1
         self.hidden_size = config['hidden_size']
         self.learning_rate = config['learning_rate']
 
@@ -110,19 +102,13 @@ def save_model(model, hyperparameters, metrics, save_path):
         with open(os.path.join(save_path, 'metrics.json'), 'w') as f:
             json.dump(metrics, f)
 
-
-#configs = get_nn_config(config_path)
-#model = LinearRegression(input_size=9, output_size=1, config=configs)
-
 def train(model, train_loader, val_loader,optimiser, num_epochs=10):
-    #optimiser = torch.optim.SGD(model.parameters(), lr=model.learning_rate)
     writer = SummaryWriter()
 
     timestamp = time.strftime('%Y-%m-%d_%H:%M:%S')
-    #save_path = os.path.join('models', 'neural_networks', 'regression', timestamp)
-    #training
+   
     for epoch in range(num_epochs):
-        #print(epoch, model.learning_rate, model.hidden_size)
+    
         train_loss = 0.0
         start_time = time.time()
         for i, batch in enumerate(train_loader):
@@ -130,7 +116,6 @@ def train(model, train_loader, val_loader,optimiser, num_epochs=10):
             train_predictions = model(features)
             loss = F.mse_loss(train_predictions, label)
             train_loss +=loss.item()
-            #print (train_loss)
 
             loss.backward()
             optimiser.step()
@@ -138,7 +123,6 @@ def train(model, train_loader, val_loader,optimiser, num_epochs=10):
 
             writer.add_scalar('loss', loss.item(), epoch*len(train_loader)+i)
         train_loss /= len(train_loader)
-        #print(epoch)
         
         writer.add_scalar('avg train loss', train_loss, epoch)
         training_duration = time.time() - start_time
@@ -168,8 +152,6 @@ def train(model, train_loader, val_loader,optimiser, num_epochs=10):
         # Calculate inference latency
         num_samples = 1000
         model.input_size = 9
-        #model.hidden_size = 3
-        #model.output_size = 1
         features = torch.randn((num_samples, model.input_size))
         start_time = time.time()
         model(features)
@@ -180,10 +162,7 @@ def train(model, train_loader, val_loader,optimiser, num_epochs=10):
         hyperparameters = {
             'input_size': model.input_size,
             'hidden_size': model.hidden_size,
-            #'output_size': model.output_size,
             'learning_rate': model.learning_rate,
-            #'hidden_layer_width': model.hidden_layer_width,
-            #'model_depth': model.model_depth
         }
         metrics = {'RMSE_loss_train': train_rmse_loss, 'RMSE_loss_val': val_rmse_loss,
                'R_squared_train': train_r2_score, 'R_squared_val': val_r2_score,
@@ -218,19 +197,7 @@ def find_best_nn(train_loader, val_loader, config_params, save_dir, best_save_di
         # Train model
         metrics = train(model, train_loader, val_loader, optimiser)
 
-        #print(metrics)
-        
-        # Save hyperparameters and metrics
-        #save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/'
         save_model(model, new_config, metrics, f'{save_dir}model_{i}')
-        #best_save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/best_nn'
-        #hyperparams_file = os.path.join(save_dir, f'hyperparameters_{i}.json')
-        #with open(hyperparams_file, 'w') as f:
-         #   json.dump(new_config, f)
-            
-        #metrics_file = os.path.join(save_dir, f'metrics_{i}.json')
-        #with open(metrics_file, 'w') as f:
-        #    json.dump(metrics, f)
             
         # Save model if it performs better on the validation set
         val_loss = metrics['RMSE_loss_val']
@@ -239,23 +206,6 @@ def find_best_nn(train_loader, val_loader, config_params, save_dir, best_save_di
             best_metrics = metrics
             best_hyperparams = new_config
             best_val_loss = val_loss
-            #torch.save(model.state_dict(), os.path.join(best_save_dir, 'best_model.pth'))
             save_model(best_model, best_hyperparams, best_metrics, save_path= best_save_dir)
             
     return metrics, best_model, best_metrics, best_hyperparams
-
-#save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/'
-#best_save_dir = '/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/16nn/best_nn'
-#find_best_nn(train_loader, val_loader, config_params, save_dir, best_save_dir)
-
-#print(save_dir)
-#find_best_nn(train_loader, val_loader, config_params=config_params)
-#configs = generate_nn_configs(config_params)
-#for i in range(17):
- #   x = random.choice(configs)
-  #  #print(x)
-   # model2 = LinearRegression(input_size=9, output_size=1, config=x)
-    #print(model2)
-    #print(model2.learning_rate)
-#find_best_nn(train_loader, val_loader,config_params )
-#print(configs)

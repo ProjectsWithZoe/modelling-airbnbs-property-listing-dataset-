@@ -1,28 +1,8 @@
 import pytorch
-import torch
-import numpy as np
 import pandas as pd
-import yaml
 import tabular_data
-import json, os
-from joblib import dump
-import time
-from datetime import datetime
-import json
-import os
-import time
-import random
-
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import scale
-from sklearn.metrics import mean_squared_error, r2_score, accuracy_score
-
-import torch
-import torch.nn as nn
-import torch.optim as optim
-import torch.nn.functional as F
-from torch.utils.tensorboard import SummaryWriter
 
 file="/Users/gebruiker/modelling-airbnbs-property-listing-dataset-/airbnb-property-listings/tabular_data/listing.csv"
 raw_df = pd.read_csv(file)
